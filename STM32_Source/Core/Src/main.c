@@ -246,49 +246,44 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 int counter = 50;
-
+int state = 0;
 const int MAX_LED = 4;
 int index_led = 0;
 int led_buffer[4] = {1, 2, 3, 0};
 
-void updateClockBuffer (int hour, int minute){
-	if (hour < 10){
-		led_buffer[0] = 0;
-		led_buffer[1] = hour;
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	counter--;
+	if(counter <= 0 && state == 0){
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		counter = 25;
+		update7SEG(1);
+		state = 1;
 	}
-	else if (hour <= 19 && hour >= 10) {
-		led_buffer[0] = 1;
-		led_buffer[1] = hour - 10;
+	else if(counter <= 0 &&  state == 1){
+		counter = 25;
+		update7SEG(2);
+		state = 2;
 	}
-	else if (hour <= 24 && hour >= 20) {
-		led_buffer[0] = 2;
-		led_buffer[1] = hour - 20;
+	else if(counter <= 0 &&  state == 2){
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		counter = 25;
+		update7SEG(3);
+		state = 3;
 	}
+	else if(counter <= 0 &&  state == 3){
+		counter = 25;
+		update7SEG(0);
+		state = 0;
+	}
+}
 
-	if (minute < 10){
-		led_buffer[2] = 0;
-		led_buffer[3] = minute;
-	}
-	else if (hour <= 19 && hour >= 10) {
-		led_buffer[2] = 1;
-		led_buffer[3] = minute - 10;
-	}
-	else if (hour <= 29 && hour >= 20) {
-		led_buffer[2] = 2;
-		led_buffer[3] = minute - 20;
-	}
-	else if (hour <= 39 && hour >= 30) {
-		led_buffer[2] = 3;
-		led_buffer[3] = minute - 30;
-	}
-	else if (hour <= 49 && hour >= 40) {
-		led_buffer[2] = 4;
-		led_buffer[3] = minute - 40;
-	}
-	else if (hour <= 59 && hour >= 50) {
-		led_buffer[2] = 5;
-		led_buffer[3] = minute - 50;
-	}
+void updateClockBuffer (int hour, int minute){
+    led_buffer[0] = hour/10;
+    led_buffer[1] = hour%10;
+    led_buffer[2] = minute/10;
+    led_buffer[3] = minute%10;
 }
 
 void update7SEG(int index) {
@@ -326,14 +321,6 @@ void update7SEG(int index) {
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	counter--;
-	if(counter == 0){
-		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-		counter = 50;
-	}
-}
 /* USER CODE END 4 */
 
 /**
