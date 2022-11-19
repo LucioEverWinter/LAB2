@@ -10,9 +10,7 @@
 
 #include "main.h"
 
-extern int timer_flag;
-
-void setTimer(int duration);
-void timerRun();
-
+void setTimer0(int duration);
+void timer_run();
+extern int timer0_flag;
 #endif /* INC_SOFTWARE_TIMER_H_ */
