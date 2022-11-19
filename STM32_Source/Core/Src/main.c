@@ -43,7 +43,7 @@
 TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
-
+int hour, minute, second;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,12 +95,31 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  setTimer0 (1000) ;
+  setTimer0 (500) ;
+  setTimer1 (250) ;
+  hour = 15, minute = 8, second = 50;
   while (1)
   {
+	  if( timer1_flag == 1) {
+		  second++;
+		  if(second >= 60){
+			  second = 0;
+			  minute++;
+		  }
+		  if(minute >= 60){
+			  minute = 0;
+			  hour++;
+		  }
+		  if(hour >= 24){
+			  hour = 0;
+		  }
+		  updateClockBuffer(hour, minute);
+	  	  setTimer1 (50) ;
+	  }
 	  if( timer0_flag == 1) {
 		  HAL_GPIO_TogglePin ( LED_RED_GPIO_Port , LED_RED_Pin ) ;
-		  setTimer0 (2000) ;
+		  HAL_GPIO_TogglePin ( DOT_GPIO_Port , DOT_Pin) ;
+		  setTimer0 (500) ;
 	  }
     /* USER CODE END WHILE */
 
@@ -237,7 +256,31 @@ const int MAX_LED = 4;
 int index_led = 0;
 int led_buffer[4] = {1, 2, 3, 0};
 
+int counter = 25;
+int state = 0;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	counter--;
+	if(counter <= 0 && state == 0){
+		counter = 25;
+		update7SEG(1);
+		state = 1;
+	}
+	else if(counter <= 0 &&  state == 1){
+		counter = 25;
+		update7SEG(2);
+		state = 2;
+	}
+	else if(counter <= 0 &&  state == 2){
+		counter = 25;
+		update7SEG(3);
+		state = 3;
+	}
+	else if(counter <= 0 &&  state == 3){
+		counter = 25;
+		update7SEG(0);
+		state = 0;
+	}
 	timer_run();
 }
 

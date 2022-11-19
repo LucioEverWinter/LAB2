@@ -11,6 +11,8 @@
 #include "main.h"
 
 void setTimer0(int duration);
+void setTimer1(int duration);
 void timer_run();
 extern int timer0_flag;
+extern int timer1_flag;
 #endif /* INC_SOFTWARE_TIMER_H_ */
